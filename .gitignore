@@ -166,6 +166,7 @@ venv.bak/
 
 # mkdocs documentation
 /site
+.vscode/
 
 # mypy
 .mypy_cache/
@@ -219,3 +220,4 @@ __marimo__/
 
 # Data processing artifacts (large binary files)
 data/processed/
+data/
