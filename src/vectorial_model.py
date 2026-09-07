@@ -1,24 +1,13 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from typing import dict, list, tuple
 
-
+# Build TF-IDF matrices for documents and queries
 def build_tfidf_matrices(docs: list[list[str]], queries: list[list[str]]) -> tuple:
-    """
-    Build TF-IDF matrices for documents and queries.
-
-    Args:
-        docs: List of tokenized documents (list of token lists)
-        queries: List of tokenized queries (list of token lists)
-
-    Returns:
-        Tuple of (doc_matrix, query_matrix, vectorizer)
-    """
     # Convert token lists back to strings for TfidfVectorizer
     doc_strings = [" ".join(tokens) for tokens in docs]
     query_strings = [" ".join(tokens) for tokens in queries]
 
-    # Initialize TfidfVectorizer with custom tokenizer to prevent re-tokenization
+    # Initialize TfidfVectorizer with custom tokenizer to prevent retokenization
     # Use analyzer='word' to treat pre-tokenized strings as single tokens per space
     vectorizer = TfidfVectorizer(
         analyzer='word',
@@ -34,25 +23,13 @@ def build_tfidf_matrices(docs: list[list[str]], queries: list[list[str]]) -> tup
 
     return doc_matrix, query_matrix, vectorizer
 
-
+# Rank documents for each query using the Vector Space Model (TF-IDF + Cosine Similarity)
 def rank_documents_vectorial(
     doc_ids: list,
     query_ids: list,
     docs: list[list[str]],
-    queries: list[list[str]]
-) -> dict:
-    """
-    Rank documents using Vector Space Model (TF-IDF + Cosine Similarity).
+    queries: list[list[str]]) -> dict:
 
-    Args:
-        doc_ids: List of document IDs (aligned with docs)
-        query_ids: List of query IDs (aligned with queries)
-        docs: List of tokenized documents
-        queries: List of tokenized queries
-
-    Returns:
-        Dictionary mapping query_id -> list of (doc_id, score) tuples, sorted by score descending
-    """
     doc_matrix, query_matrix, _ = build_tfidf_matrices(docs, queries)
 
     # Compute cosine similarity between queries and documents

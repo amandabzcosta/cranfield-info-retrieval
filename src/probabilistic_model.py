@@ -1,19 +1,8 @@
 from collections import defaultdict
 from math import log
-from typing import dict, list
 
-
+# Build an inverted index for BM25 scoring
 def build_bm25_index(doc_ids: list, docs: list[list[str]]) -> dict:
-    """
-    Build BM25 index with precomputed statistics.
-
-    Args:
-        doc_ids: List of document IDs (aligned with docs)
-        docs: List of tokenized documents (list of token lists)
-
-    Returns:
-        Dictionary containing inverted index, document lengths, and statistics
-    """
     N = len(docs)
     inverted_index = defaultdict(lambda: defaultdict(int))
     doc_lengths = []
@@ -44,20 +33,8 @@ def build_bm25_index(doc_ids: list, docs: list[list[str]]) -> dict:
         "df": df,
     }
 
-
+# Calculate IDF for a term using BM25 formula
 def bm25_idf(term: str, index: dict) -> float:
-    """
-    Calculate IDF for a term using BM25 formula.
-
-    IDF(t) = ln((N - df(t) + 0.5) / (df(t) + 0.5)) + 1
-
-    Args:
-        term: The term to calculate IDF for
-        index: BM25 index dictionary
-
-    Returns:
-        IDF score (float)
-    """
     N = index["N"]
     df_t = index["df"].get(term, 0)
 
@@ -68,23 +45,8 @@ def bm25_idf(term: str, index: dict) -> float:
     idf = log((N - df_t + 0.5) / (df_t + 0.5)) + 1
     return idf
 
-
+# Calculate BM25 score for a document given a query
 def bm25_score(query_tokens: list[str], doc_idx: int, index: dict, k1: float = 1.2, b: float = 0.75) -> float:
-    """
-    Calculate BM25 score for a document given a query.
-
-    BM25(q, d) = Σ_{t ∈ q} IDF(t) * (f(t,d) * (k1 + 1)) / (f(t,d) + k1 * (1 - b + b * |d| / avgdl))
-
-    Args:
-        query_tokens: List of tokens in the query
-        doc_idx: Index of the document in the index
-        index: BM25 index dictionary
-        k1: Term saturation parameter (default 1.2)
-        b: Length normalization parameter (default 0.75)
-
-    Returns:
-        BM25 score (float)
-    """
     score = 0.0
     doc_length = index["doc_lengths"][doc_idx]
     avg_doc_length = index["avg_doc_length"]
@@ -108,7 +70,7 @@ def bm25_score(query_tokens: list[str], doc_idx: int, index: dict, k1: float = 1
 
     return score
 
-
+# Rank documents for each query using BM25 scoring
 def rank_documents_bm25(
     doc_ids: list,
     query_ids: list,
@@ -117,20 +79,6 @@ def rank_documents_bm25(
     k1: float = 1.2,
     b: float = 0.75
 ) -> dict:
-    """
-    Rank documents using BM25 probabilistic model.
-
-    Args:
-        doc_ids: List of document IDs (aligned with docs)
-        query_ids: List of query IDs (aligned with queries)
-        docs: List of tokenized documents
-        queries: List of tokenized queries
-        k1: Term saturation parameter (default 1.2)
-        b: Length normalization parameter (default 0.75)
-
-    Returns:
-        Dictionary mapping query_id -> list of (doc_id, score) tuples, sorted by score descending
-    """
     index = build_bm25_index(doc_ids, docs)
 
     rankings = {}
