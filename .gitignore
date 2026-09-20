@@ -218,6 +218,5 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# Data processing artifacts (large binary files)
-data/processed/
-data/
+# Projeto: enunciado do trabalho (não deve ir para o repositório)
+data/Trabalho_Pratico_1_RI_2026.pdf
