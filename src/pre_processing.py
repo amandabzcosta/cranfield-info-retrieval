@@ -5,7 +5,7 @@ from pathlib import Path
 from nltk.stem import PorterStemmer
 from typing import Union
 
-# Define preprocessing configurations for comparison
+# Configurações de pré-processamento para comparação
 PREPROCESSING_CONFIGS = {
     "raw": {"remove_stopwords": False, "apply_stemming": False},
     "stopwords": {"remove_stopwords": True, "apply_stemming": False},
@@ -13,11 +13,11 @@ PREPROCESSING_CONFIGS = {
     "stopwords_stemming": {"remove_stopwords": True, "apply_stemming": True},
 }
 
-# Initialize the Porter Stemmer and stopwords set
+# Inicializa o stemmer de Porter e o conjunto de stopwords
 STEMMER = PorterStemmer()
 STOPWORDS = None
 
-# Ensure that the necessary NLTK resources are available
+# Garante que os recursos necessários do NLTK estejam disponíveis
 def ensure_nltk_resources():
     try:
         nltk.data.find("tokenizers/punkt")
@@ -36,29 +36,28 @@ def ensure_nltk_resources():
     if STOPWORDS is None:
         STOPWORDS = set(nltk.corpus.stopwords.words("english"))
 
-# Tokenization, stopword removal, and stemming functions
+# Funções de tokenização, remoção de stopwords e stemming
 def tokenize(text: str) -> list[str]:
-    text_lower = text.lower() # Convert text to lowercase
-    tokens = nltk.word_tokenize(text_lower) # Broke text into tokens
-    filtered_tokens = [token for token in tokens if token.isalpha()] # Discard non alphabetic tokens
+    text_lower = text.lower() # Converte para minúsculas
+    tokens = nltk.word_tokenize(text_lower) # Quebra o texto em tokens
+    filtered_tokens = [token for token in tokens if token.isalpha()] # Descarta tokens não alfabéticos
     return filtered_tokens
 
-# Remove stopwords from a list of tokens
-def remove_stopwords(tokens: list[str]) -> list[str]: 
+# Remove stopwords de uma lista de tokens
+def remove_stopwords(tokens: list[str]) -> list[str]:
     if STOPWORDS is None:
         ensure_nltk_resources()
     return [token for token in tokens if token not in STOPWORDS]
 
-# Apply stemming to a list of tokens
+# Aplica stemming a uma lista de tokens
 def stem_tokens(tokens: list[str]) -> list[str]:
-    return [STEMMER.stem(token) for token in tokens] # Apply stemming to each token for reduced word forms  
+    return [STEMMER.stem(token) for token in tokens] # Reduz cada token à sua raiz
 
-# Preprocess a single text string with optional stopword removal and stemming
-def preprocess_text(text: str, 
-    remove_stopwords_flag: bool = False, 
+# Aplica remoção de stopwords e/ou stemming a uma lista já tokenizada
+def apply_config(
+    tokens: list[str],
+    remove_stopwords_flag: bool = False,
     apply_stemming_flag: bool = False) -> list[str]:
-
-    tokens = tokenize(text)
 
     if remove_stopwords_flag:
         tokens = remove_stopwords(tokens)
@@ -66,21 +65,29 @@ def preprocess_text(text: str,
         tokens = stem_tokens(tokens)
     return tokens
 
-# Preprocess a corpus of texts with optional stopword removal and stemming
+# Pré-processa um texto, com remoção de stopwords e stemming opcionais
+def preprocess_text(text: str,
+    remove_stopwords_flag: bool = False,
+    apply_stemming_flag: bool = False) -> list[str]:
+
+    tokens = tokenize(text)
+    return apply_config(tokens, remove_stopwords_flag, apply_stemming_flag)
+
+# Pré-processa um corpus de textos, com remoção de stopwords e stemming opcionais
 def preprocess_corpus(
     texts: Union[pd.Series, list],
     remove_stopwords_flag: bool = False,
     apply_stemming_flag: bool = False) -> list[list[str]]:
-    
+
     return [
         preprocess_text(text, remove_stopwords_flag, apply_stemming_flag) for text in texts
     ]
 
-# Get the combined text of documents by concatenating their titles and main text
+# Junta título e texto de cada documento
 def get_document_text(df_docs: pd.DataFrame) -> pd.Series:
     return df_docs["title"] + " " + df_docs["text"]
 
-# Compute vocabulary statistics for a list of tokenized documents
+# Calcula estatísticas de vocabulário para documentos já tokenizados
 def vocabulary_stats(tokenized_docs: list[list[str]]) -> dict:
     vocab = set()
     total_tokens = 0
@@ -96,7 +103,7 @@ def vocabulary_stats(tokenized_docs: list[list[str]]) -> dict:
         "avg_tokens_per_doc": avg_tokens_per_doc,
     }
 
-# Build all preprocessing configurations for documents and queries, returning a dictionary with the results
+# Gera as 4 configurações de pré-processamento para documentos e consultas
 def build_all_configs(df_docs: pd.DataFrame, df_queries: pd.DataFrame) -> dict:
     ensure_nltk_resources()
 
@@ -120,7 +127,7 @@ def build_all_configs(df_docs: pd.DataFrame, df_queries: pd.DataFrame) -> dict:
         }
     return result
 
-# Save and load preprocessed data using pickle
+# Salva dados pré-processados em disco, via pickle
 def save_preprocessed(data: dict, path: Union[str, Path]) -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -128,7 +135,7 @@ def save_preprocessed(data: dict, path: Union[str, Path]) -> None:
     with open(path, "wb") as f:
         pickle.dump(data, f)
 
-# Load preprocessed data from a pickle file
+# Carrega dados pré-processados a partir de um arquivo pickle
 def load_preprocessed(path: Union[str, Path]) -> dict:
     path = Path(path)
     with open(path, "rb") as f:

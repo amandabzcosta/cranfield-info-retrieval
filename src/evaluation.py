@@ -4,7 +4,7 @@ import pandas as pd
 DEFAULT_K = 10
 ALL_METRICS = ["precision", "recall", "f1", "ap", "rr", "ndcg"]
 
-# Build a dictionary mapping query_id to a set of relevant doc_ids
+# Mapeia cada query_id ao conjunto de doc_ids relevantes
 def build_relevant_sets(df_qrels: pd.DataFrame) -> dict:
     relevant = df_qrels[df_qrels["relevance"] >= 1]
     grouped = relevant.groupby("query_id")["doc_id"].apply(set)
@@ -15,11 +15,11 @@ def build_relevant_sets(df_qrels: pd.DataFrame) -> dict:
 
     return result
 
-# Build a dictionary mapping query_id to a dictionary of doc_id to graded relevance
+# Mapeia cada query_id a um dicionário doc_id -> relevância graduada
 def build_graded_relevance(df_qrels: pd.DataFrame) -> dict:
     df = df_qrels.copy()
-    # Cranfield's relevance scale is inverted: 1 = most relevant, 4 = least relevant,
-    # -1 = not relevant. Flip it so higher values mean higher gain for NDCG.
+    # A escala de relevância do Cranfield é invertida: 1 = mais relevante, 4 = menos
+    # relevante, -1 = não relevante. Inverte para que valores maiores = mais ganho no NDCG.
     df["relevance_graded"] = df["relevance"].apply(lambda r: 5 - r if r >= 1 else 0)
 
     grouped = df.groupby("query_id").apply(
@@ -28,7 +28,7 @@ def build_graded_relevance(df_qrels: pd.DataFrame) -> dict:
     )
     return grouped.to_dict()
 
-# Compute precision at k for a single query
+# Calcula precision@k para uma consulta
 def precision_at_k(retrieved: list, relevant: set, k: int = DEFAULT_K) -> float:
     if k <= 0:
         return 0.0
@@ -36,7 +36,7 @@ def precision_at_k(retrieved: list, relevant: set, k: int = DEFAULT_K) -> float:
     hits = sum(1 for doc_id in top_k if doc_id in relevant)
     return hits / k
 
-# Compute recall at k for a single query
+# Calcula recall@k para uma consulta
 def recall_at_k(retrieved: list, relevant: set, k: int = DEFAULT_K) -> float:
     if len(relevant) == 0:
         return float("nan")
@@ -44,7 +44,7 @@ def recall_at_k(retrieved: list, relevant: set, k: int = DEFAULT_K) -> float:
     hits = sum(1 for doc_id in top_k if doc_id in relevant)
     return hits / len(relevant)
 
-# Compute F1 score at k for a single query
+# Calcula F1@k para uma consulta
 def f1_at_k(retrieved: list, relevant: set, k: int = DEFAULT_K) -> float:
     precision = precision_at_k(retrieved, relevant, k)
     recall = recall_at_k(retrieved, relevant, k)
@@ -55,7 +55,7 @@ def f1_at_k(retrieved: list, relevant: set, k: int = DEFAULT_K) -> float:
         return 0.0
     return 2 * precision * recall / (precision + recall)
 
-# Compute average precision (AP) for a single query
+# Calcula average precision (AP) para uma consulta
 def average_precision(retrieved: list, relevant: set) -> float:
     if len(relevant) == 0:
         return float("nan")
@@ -69,14 +69,14 @@ def average_precision(retrieved: list, relevant: set) -> float:
 
     return sum_precisions / len(relevant)
 
-# Compute reciprocal rank (RR) for a single query
+# Calcula reciprocal rank (RR) para uma consulta
 def reciprocal_rank(retrieved: list, relevant: set) -> float:
     for i, doc_id in enumerate(retrieved, start=1):
         if doc_id in relevant:
             return 1.0 / i
     return 0.0
 
-# Compute normalized discounted cumulative gain (NDCG) at k for a single query
+# Calcula NDCG@k para uma consulta
 def ndcg_at_k(retrieved: list, graded_relevance: dict, k: int = DEFAULT_K) -> float:
     def dcg(doc_ids_ordered):
         total = 0.0
@@ -93,7 +93,7 @@ def ndcg_at_k(retrieved: list, graded_relevance: dict, k: int = DEFAULT_K) -> fl
         return float("nan")
     return dcg_at_k / idcg_at_k
 
-# Evaluate the ranking performance across all queries
+# Avalia o desempenho do ranking em todas as consultas
 def evaluate_ranking(
     ranking: dict,
     df_qrels: pd.DataFrame,
@@ -168,7 +168,7 @@ def compare_rankings(
 
     return merged
 
-# Categorize queries based on the difference in performance metrics between two models
+# Categoriza consultas pela diferença de desempenho entre dois modelos
 def categorize_query_differences(
     comparison_df: pd.DataFrame,
     metric: str = "ap",
@@ -210,7 +210,7 @@ def categorize_query_differences(
 
     return {category: [query_id for query_id, _ in items] for category, items in categories.items()}
 
-# Evaluate a grid of parameters for a ranking function and return a DataFrame with the results
+# Avalia uma grade de parâmetros de uma função de ranking, retornando um DataFrame
 def evaluate_parameter_grid(
     build_ranking_fn,
     param_grid: list,
