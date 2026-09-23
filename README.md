@@ -11,7 +11,7 @@ parâmetros do BM25, modificação de consultas e análise de erros.
 | Nome | Nº USP | Email |
 |---|---|---|
 | Amanda Bezerra da Costa | 12680861 | amandabzrcosta@gmail.com |
-| Leonardo Ferreira Runho | 11832958 | <PREENCHER> |
+| Leonardo Ferreira Runho | 11832958 | leo.frunho@gmail.com |
 
 ## Base de dados
 
