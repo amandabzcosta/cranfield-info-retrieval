@@ -1,0 +1,6 @@
+query_id,estrategia,overlap_BM25,overlap_Modelo Vetorial
+5,Remoção de termo (mais genérica),6,5
+40,Substituição por sinônimos,3,8
+100,Acréscimo de termo (mais específica),9,9
+150,Remoção de termos (mais genérica),7,10
+180,Acréscimo de termo (mais específica),10,9

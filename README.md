@@ -6,6 +6,13 @@ Modelo Vetorial (TF-IDF + similaridade de cosseno) e o Modelo Probabilístico (B
 avaliação quantitativa (Precision@10, Recall@10, MAP, F1@10, MRR, NDCG@10), variação de
 parâmetros do BM25, modificação de consultas e análise de erros.
 
+## Integrantes
+
+| Nome | Nº USP | Email |
+|---|---|---|
+| Amanda Bezerra da Costa | 12680861 | amandabzrcosta@gmail.com |
+| Leonardo Ferreira Runho | 11832958 | <PREENCHER> |
+
 ## Base de dados
 
 Coleção clássica **Cranfield** (1400 documentos, 225 consultas, julgamentos de relevância),
@@ -73,15 +80,20 @@ prontas de BM25.
 src/
   cranfield_data.py       # carregamento da coleção (ir_datasets + fallback local)
   pre_processing.py       # tokenização, stopwords, stemming, 4 configurações
-  vectorial_model.py      # funções de base do Modelo Vetorial (TF-IDF + cosseno)
-  vector_model.py         # classe VectorSpaceModel usada pelos notebooks
-  probabilistic_model.py  # funções de base do BM25 (índice invertido, score)
-  bm25.py                 # classe BM25 usada pelos notebooks
+                          # compostos hifenizados são divididos em suas partes
+                          # (two-dimensional -> two, dimensional)
+  vector_model.py         # classe VectorSpaceModel (TF-IDF + cosseno)
+  probabilistic_model.py  # cálculo explícito do BM25 (índice invertido, IDF, score)
+  bm25.py                 # classe BM25, que encapsula o cálculo acima
   evaluation.py           # métricas de avaliação (precision, recall, AP, NDCG, ...)
   metrics.py              # evaluate_model(), usada pelos notebooks
 notebooks/                # Casos 1-9 do enunciado
+report/                   # relatório em PDF
+  figures/                # figuras geradas pelos notebooks (NB01, NB05, NB07)
 data/
   raw/                    # arquivos originais do Cranfield (fallback)
-  processed/              # dados pré-processados e rankings/métricas persistidos
-  Trabalho_Pratico_1_RI_2026.pdf  # enunciado do trabalho
+  processed/              # dados pré-processados, rankings e resultados por consulta
+                          # (vsm_perquery.csv, bm25_perquery.csv,
+                          #  bm25_grade_parametros.csv, modificacao_consultas_overlap.csv)
+  archives/               # enunciado do trabalho (fora do versionamento, ver .gitignore)
 ```

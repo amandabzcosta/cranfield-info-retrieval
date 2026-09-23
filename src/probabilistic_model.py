@@ -76,31 +76,3 @@ def bm25_score(query_tokens: list[str], doc_idx: int, index: dict, k1: float = 1
         score += idf_t * (numerator / denominator)
 
     return score
-
-# Rankeia documentos para cada consulta usando o score BM25
-def rank_documents_bm25(
-    doc_ids: list,
-    query_ids: list,
-    docs: list[list[str]],
-    queries: list[list[str]],
-    k1: float = 1.2,
-    b: float = 0.75
-) -> dict:
-    index = build_bm25_index(doc_ids, docs)
-
-    rankings = {}
-    for query_idx, query_id in enumerate(query_ids):
-        query_tokens = queries[query_idx]
-
-        # Calcula o score BM25 de cada documento
-        doc_scores = []
-        for doc_idx in range(len(doc_ids)):
-            score = bm25_score(query_tokens, doc_idx, index, k1=k1, b=b)
-            doc_scores.append((doc_ids[doc_idx], score))
-
-        # Ordena por score decrescente
-        doc_scores.sort(key=lambda x: x[1], reverse=True)
-
-        rankings[query_id] = doc_scores
-
-    return rankings
