@@ -40,7 +40,21 @@ def ensure_nltk_resources():
 def tokenize(text: str) -> list[str]:
     text_lower = text.lower() # Converte para minúsculas
     tokens = nltk.word_tokenize(text_lower) # Quebra o texto em tokens
-    filtered_tokens = [token for token in tokens if token.isalpha()] # Descarta tokens não alfabéticos
+
+    # Descarta tokens não alfabéticos, mas quebra os compostos hifenizados em
+    # suas partes em vez de jogá-los fora. A coleção escreve as duas formas
+    # ("boundary layer" e "boundary-layer"), então dividir unifica as duas;
+    # manter o composto inteiro criaria um terceiro termo que não casaria com
+    # nenhuma delas. Sem isso, perderíamos 6.387 ocorrências (2.240 tipos
+    # distintos) justamente dos termos mais específicos do domínio:
+    # boundary-layer, two-dimensional, free-stream, heat-transfer, wind-tunnel...
+    filtered_tokens = []
+    for token in tokens:
+        if token.isalpha():
+            filtered_tokens.append(token)
+        elif "-" in token:
+            filtered_tokens.extend(part for part in token.split("-") if part.isalpha())
+
     return filtered_tokens
 
 # Remove stopwords de uma lista de tokens

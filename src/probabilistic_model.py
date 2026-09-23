@@ -56,7 +56,11 @@ def bm25_score(query_tokens: list[str], doc_idx: int, index: dict, k1: float = 1
         if term not in inverted_index:
             continue
 
-        f_t_d = inverted_index[term][doc_idx]
+        # .get em vez de [doc_idx]: como inverted_index é um defaultdict
+        # aninhado, indexar um doc que não contém o termo INSERIRIA um zero,
+        # densificando o índice a cada consulta (79k -> 5,7M entradas) sem
+        # alterar nenhum score.
+        f_t_d = inverted_index[term].get(doc_idx, 0)
         if f_t_d == 0:
             continue
 
